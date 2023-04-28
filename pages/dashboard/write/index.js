@@ -91,7 +91,8 @@ const Write = () => {
             let status = res.data.status;
             // 응답결과가 200이면, 대시보드로 이동
             if (status === 200) {
-              router.push("/dashboard");
+                window.alert("작품이 업로드되었습니다.")
+                router.push("/dashboard");
             } 
             // 응답결과가 401이면, 서버의 msg값을 경고로 출력
             else {

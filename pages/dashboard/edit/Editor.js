@@ -197,10 +197,13 @@ const Editor = () => {
             dispatch(testAction(quillRef.current.firstChild.innerHTML));
         });
 
-        // 에디터에 fromDBhtmlText 올리기
-        quill.clipboard.dangerouslyPasteHTML(`${fromDBhtmlText}`)
+            // 에디터에 fromDBhtmlText 올리기
+            quill.clipboard.dangerouslyPasteHTML(fromDBhtmlText)
+            console.log(`게시판 상태값: ${fromDBhtmlText}`)
+        } else {
+            console.log("quill 없음")
         }
-    }, [quill, id]);
+    }, [quill, id, fromDBhtmlText]);
 
     useEffect(()=> {
         setIsIDChanged(id);
@@ -213,6 +216,7 @@ const Editor = () => {
             "Content-Type": "application/json"
             }).then(res => {
                 let data = res.data[0];
+                console.log(`불러온 html값: ${data.htmlText}`)
                 setFromDBhtmlText(data.htmlText);
            })
     }, [])
@@ -220,9 +224,6 @@ const Editor = () => {
 
     return (
         <div className='DKEditorRef' style={{ width: 800 }}>
-            {
-                console.log(fromDBhtmlText)
-            }
             <div id="toolbar1">
                 <select className="ql-size">
                     <option value="small" />

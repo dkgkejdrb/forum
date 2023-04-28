@@ -83,6 +83,7 @@ const Edit = () => {
 
 
     const data = {
+        "id": id,
         "category": categoryState,
         "title": titleState,
         "htmlText": htmlText?.test,
@@ -106,7 +107,7 @@ const Edit = () => {
             return;
         } 
 
-        axios.post("/api/post/image", data, {"Content-Type": "application/json"})
+        axios.post("/api/post/edit", data, {"Content-Type": "application/json"})
         .then(res => {
             let status = res.data.status;
             // 응답결과가 200이면, 대시보드로 이동
@@ -128,7 +129,7 @@ const Edit = () => {
             <UpperMenu router={router} />
             <div className='UploadButton' style={{ width: 800, display: "flex", alignItems: "center" }}>
                 <div style={{ fontWeight: 700, fontSize: 19, textDecoration: "underline" }}>수정하기</div>
-                <Button style={{ marginLeft: 625 }}  onClick={uploadHandler} shape="round" type="primary" icon={<UploadOutlined />}>업로드</Button>
+                <Button style={{ marginLeft: 630 }}  onClick={uploadHandler} shape="round" type="primary" icon={<UploadOutlined />}>수정</Button>
             </div>
             <div className='SelectCategory' style={{ width: 800, marginTop: 30 }}>
                 <Select defaultValue="디자인" value={categoryState} style={{ marginBottom: 16, width: 120 }} onChange={selectCategoryHandler} bordered={false}
