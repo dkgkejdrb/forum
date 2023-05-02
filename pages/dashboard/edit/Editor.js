@@ -4,7 +4,7 @@
 
 // 중요: 컴포넌트의 클래스네임(ql-insertHeart)과 핸들러의 key이름(inserHeart)와 일치해야함
 import React, { useEffect, useState } from 'react';
-import ImageResize from 'quill-image-resize-module-react';
+// import ImageResize from 'quill-image-resize-module-react';
 // 중요 1: Quill moudle에 외부 모듈을 등록하기 위해 Quill 임포트
 import Quill from 'quill';
 
@@ -14,13 +14,6 @@ import { useDispatch } from "react-redux";
 import { testAction } from "@/lib/store/modules/test";
 import axios from 'axios';
 import { useRouter } from "next/router";
-import dynamic from 'next/dynamic'
-
-const DynamicComponent = dynamic(() => import('quill-image-resize-module-react'), {
-    ssr: false,
-})
-
-
 
 // 이미지 ctrl c / ctrl v
 // quillRef 끌어올리기
@@ -60,7 +53,7 @@ const formats = [
 const placeholder = '본문을 작성해주세요.';
 
 // 중요 2: Quill moudle에 imageResize 디렉터리 등록
-Quill.register("modules/imageResize", ImageResize);
+// Quill.register("modules/imageResize", ImageResize);
 
 const Editor = () => {
     // 리덕스
@@ -184,7 +177,6 @@ const Editor = () => {
                 <button className="ql-script" value="super" />
             </div>
             <div ref={quillRef}></div>
-            <DynamicComponent />
         </div>
     );
 }
