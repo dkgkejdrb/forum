@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 // import ImageResize from 'quill-image-resize-module-react';
 // 중요 1: Quill moudle에 외부 모듈을 등록하기 위해 Quill 임포트
-import Quill from 'quill';
+// import Quill from 'quill';
 
 import { useQuill } from 'react-quilljs';
 import 'quill/dist/quill.snow.css';
@@ -56,6 +56,8 @@ const placeholder = '본문을 작성해주세요.';
 // Quill.register("modules/imageResize", ImageResize);
 
 const Editor = () => {
+
+    
     // 리덕스
     const dispatch = useDispatch();
 
