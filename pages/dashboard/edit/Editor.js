@@ -14,6 +14,13 @@ import { useDispatch } from "react-redux";
 import { testAction } from "@/lib/store/modules/test";
 import axios from 'axios';
 import { useRouter } from "next/router";
+import dynamic from 'next/dynamic'
+
+const DynamicComponent = dynamic(() => import('quill-image-resize-module-react'), {
+    ssr: false,
+})
+
+
 
 // 이미지 ctrl c / ctrl v
 // quillRef 끌어올리기
@@ -53,7 +60,7 @@ const formats = [
 const placeholder = '본문을 작성해주세요.';
 
 // 중요 2: Quill moudle에 imageResize 디렉터리 등록
-// Quill.register("modules/imageResize", ImageResize);
+Quill.register("modules/imageResize", ImageResize);
 
 const Editor = () => {
     // 리덕스
@@ -177,6 +184,7 @@ const Editor = () => {
                 <button className="ql-script" value="super" />
             </div>
             <div ref={quillRef}></div>
+            <DynamicComponent />
         </div>
     );
 }
