@@ -15,11 +15,6 @@ import { testAction } from "@/lib/store/modules/test";
 import axios from 'axios';
 import { useRouter } from "next/router";
 
-// 엑셀 파일 업로드 아이콘
-const ExcelUploadIcon = () => ( <span className='excelUpload'>📃</span> )
-// 이미지 파일 업로드 아이콘
-const ImageUploadIcon = () => ( <span className='imageUpload'>🖼️</span> )
-
 // 이미지 ctrl c / ctrl v
 // quillRef 끌어올리기
 let _quillRef = null;
@@ -77,70 +72,7 @@ const Editor = () => {
         }
     }
 
-    const [excelUploadClicked, setExcelUploadClicked] = useState(false);
-    const [imageUploadClicked, setImageUploadClicked] = useState(false);
-    const uploadHandler = (e) => {
-        const className = e.target.className;
-        if (className === "excelUpload") {
-            setExcelUploadClicked(!excelUploadClicked);
-        } else if (className === "imageUpload") {
-            setImageUploadClicked(!imageUploadClicked);
-        }
-
-    }
-
-
     const { quill, quillRef } = useQuill({ modules, formats, placeholder });
-
-    // 엑셀 파일 > 화면에 표시할 카드
-    const [ excelUploadCard, setExcelUploadCard ] = useState(null);
-    // 엑셀파일인지 유효성 검사
-    useEffect(() => {
-        if (quill) {
-            const input = document.createElement('input');
-            input.setAttribute('type', 'file');
-            input.setAttribute('accept', '.xlsx');
-            input.click();
-
-            input.onchange = () => {
-                const file = input.files[0];
-                let extention = file.name.slice(file.name.indexOf(".") + 1).toLowerCase();
-                if(extention !== "xlsx") {
-                  alert(`[ ${file.name} ] 은 지원하지 않는 파일형식입니다.`);
-                  return;
-                }
-                setExcelUploadCard(file);
-                // axios 사용해야함
-            };
-        }
-    }, [excelUploadClicked]);
-
-    // 이미지 파일 > 화면에 표시할 카드
-    const [ imageUploadCard, setImageUploadCard ] = useState(null);
-    // 이미지파일인지 유효성 검사
-    useEffect(() => {
-        if (quill) {
-            const input = document.createElement('input');
-            input.setAttribute('type', 'file');
-            input.setAttribute('accept', 'image/*');
-            input.click();
-
-            input.onchange = () => {
-                const file = input.files[0];
-                let extention = file.name.slice(file.name.indexOf(".") + 1).toLowerCase();
-                if(extention !== "png") {
-                  alert(`[ ${file.name} ] 은 지원하지 않는 파일형식입니다.`);
-                  return;
-                }
-                // else if(extention !== "jpg") {
-                //     alert(`[ ${file.name} ] 은 지원하지 않는 파일형식입니다.`);
-                //     return;
-                // }
-                setImageUploadCard(file);
-                // axios 사용해야함
-            };
-        }
-    }, [imageUploadClicked]);
 
     // Insert Image(selected by user) to quill
     const insertToEditor = (url) => {
@@ -177,11 +109,9 @@ const Editor = () => {
 
     const router = useRouter();
     const { id } = router.query;
-    const [isIDChnaged, setIsIDChanged] = useState(id);
     const [fromDBhtmlText, setFromDBhtmlText] = useState("")
 
     useEffect(() => {
-        console.log("이게 많이뜨면 안됨")
         if (quill) {
             _quillRef = quillRef;
 
@@ -190,25 +120,15 @@ const Editor = () => {
 
         // 글자가 바뀌었을 때, 콜이되는 이벤트 리스너
         quill.on('text-change', (delta, oldDelta, source) => {
-            // console.log(quill.getText()); // get text only
-            // console.log(quill.getContents()); // get delta contents
-            // console.log(quill.root.innerHTML); // get innerHTML using quill
-            // console.log(quillRef.current.firstChild.innerHTML); // get innerHTML using quillRef
             dispatch(testAction(quillRef.current.firstChild.innerHTML));
         });
 
             // 에디터에 fromDBhtmlText 올리기
             quill.clipboard.dangerouslyPasteHTML(fromDBhtmlText)
-            console.log(`게시판 상태값: ${fromDBhtmlText}`)
-        } else {
-            console.log("quill 없음")
-        }
+        } 
     }, [quill, id, fromDBhtmlText]);
 
     useEffect(()=> {
-        setIsIDChanged(id);
-        console.log("이게 많이뜨면 안됨")
-
         // DB의 고유 id를
         axios.post("/api/post/getEditData", {
                 "id": id,
@@ -216,7 +136,6 @@ const Editor = () => {
             "Content-Type": "application/json"
             }).then(res => {
                 let data = res.data[0];
-                console.log(`불러온 html값: ${data.htmlText}`)
                 setFromDBhtmlText(data.htmlText);
            })
     }, [])
@@ -258,29 +177,6 @@ const Editor = () => {
                 <button className="ql-script" value="super" />
             </div>
             <div ref={quillRef}></div>
-            {/* <div ref={counterRef}></div> */}
-            {/* 아래 html 태그 텍스트 코드를 html로 변경 */}
-            {/* <div dangerouslySetInnerHTML={{ __html: data }} ></div> */}
-            {
-                excelUploadCard &&
-                    <div
-                        style={{ width: "100%", display: "flex", justifyContent: "space-between", backgroundColor: "grey" }}>
-                        <span>{excelUploadCard.name}</span>
-                        <div style={{ width: "20px", cursor: "pointer", color: "red", textAlign: "center"}}
-                            onClick={()=> { setExcelUploadCard(null) }}
-                        >x</div>
-                    </div>
-            }
-            {
-                imageUploadCard &&
-                    <div
-                        style={{ width: "100%", display: "flex", justifyContent: "space-between", backgroundColor: "grey" }}>
-                        <span>{imageUploadCard.name}</span>
-                        <div style={{ width: "20px", cursor: "pointer", color: "red", textAlign: "center"}}
-                            onClick={()=> { setImageUploadCard(null) }}
-                        >x</div>
-                    </div>
-            }
         </div>
     );
 }

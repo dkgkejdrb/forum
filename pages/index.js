@@ -1,8 +1,6 @@
 import { connectDB } from "@/util/index"
 import { Input, Button } from "antd";
 import { useState } from "react";
-// import { useDispatch } from "react-redux";
-// import { testAction } from "@/lib/store/modules/test";
 import { useRouter } from "next/router";
 import axios from "axios";
 

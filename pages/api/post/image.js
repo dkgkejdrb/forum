@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     if (req.method == 'POST') {
       try {
         let db = (await connectDB).db('forum');
-        let result = db.collection('mywork').insertOne(body);
+        db.collection('mywork').insertOne(body);
         res.send({ status: 200, msg: "업로드 성공" })
       } catch (error) {
         res.send({ msg: "업로드 실패" })

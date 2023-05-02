@@ -1,6 +1,6 @@
 import { AppstoreOutlined, FormOutlined } from '@ant-design/icons';
 import { connectDB } from "@/util/index"
-import { Button, Menu, Table } from "antd";
+import { Button, Menu, Table, Modal } from "antd";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -46,8 +46,41 @@ const UpperMenu = (props) => {
 const MyWork = () => {
     const router = useRouter();
 
-    // 테이블을 클릭했을 때, 테이블의 key값(DB의 _id)을 저장할 상태값
+    // 모달창 보여지는 상태값(true, false)
+    const [open, setOpen] = useState(false);
+
+    // 삭제할 열의 id값
     const [_id, set_Id] = useState("");
+
+    const showModal = (e) => {
+      set_Id(e.target.id);
+      setOpen(true);
+    };
+    // ok 클릭 시, id값을 찾아 삭제
+    const handleOk = (e) => {
+        const data = {
+            "id": _id
+        }
+        axios.post("/api/post/delete", data, {"Content-Type": "application/json"})
+        .then(res => {
+            let status = res.data.status;
+            // 응답결과가 200이면, 대시보드로 이동
+            if (status === 200) {
+                // 화면 새로고침
+                router.reload();
+            } 
+            // 응답결과가 401이면, 서버의 msg값을 경고로 출력
+            else {
+              window.alert("알 수 없는오류");
+            }
+        }).catch(err => {
+            console.log(err)
+        })
+        setOpen(false);
+    };
+    const handleCancel = (e) => {
+      setOpen(false);
+    };
 
     const goToRouter = () => {
         router.push("/dashboard/write")
@@ -74,9 +107,30 @@ const MyWork = () => {
             key: "date",
             dataIndex: "date",
         },
+        {
+            title: "편집",
+            key: "action",
+            render: (_, record) => (
+                <div>
+                    <Button danger onClick={() => {router.push("/dashboard/edit/" + record.key)} }>수정</Button>
+                    <Button id={record.key} type='primary' danger 
+                        onClick={
+                            (e) => {
+                                showModal(e);
+                            } 
+                        } style={{ marginLeft: 15 }}>
+                        <div id={record.key}>삭제</div>
+                    </Button>
+                </div>
+            )
+        },
     ]
 
     const [workList, setWorkList] = useState([]);
+
+    useEffect(() => {
+
+    }, [workList])
 
     const myWorkList = () => {
         // 나의 작품 리스트 가져오기
@@ -85,6 +139,7 @@ const MyWork = () => {
             let tmpArray = [];
             res.data.reverse().map((myWork, index) => {
                 tmpArray.push({
+                    id: index,
                     key: myWork._id,
                     title: myWork.title,
                     category: myWork.category,
@@ -104,19 +159,27 @@ const MyWork = () => {
                 <div style={{ fontWeight: 700 }}>작품 목록</div>
                 <Button style={{ marginLeft: 640 }} onClick={goToRouter} >작성하기</Button>
             </div>
-            <Table onRow={(record) => {
-                return {
-                    onDoubleClick: () => { router.push("/dashboard/edit/" + record.key) }
-                }
-            }}  
+            <Table 
                 columns={columns} dataSource={workList}  style={{ width: 800, marginTop: 16 }} />
             </div>
+            <Modal
+                open={open}
+                title="경고"
+                content="선택한 작품을 삭제하시겠습니까?"
+                okText= "예"
+                okType= "danger"
+                cancelText= "아니오"
+                onOk={handleOk}
+                onCancel={handleCancel}
+            >
+                <div>선택한 작품을 삭제하시겠습니까?</div>
+            </Modal>
         </div>
     );
 }
 
 const Content = () => {
-    const [current, setCurrent] = useState('home');
+    const [current, setCurrent] = useState('myWork');
     
     const onClickMenu = (e) => {
         setCurrent(e.key);
@@ -124,14 +187,14 @@ const Content = () => {
 
     const items = [
         {
-          label: '홈',
-          key: 'home',
-          icon: <AppstoreOutlined />,
-        },
+            label: '작품 올리기',
+            key: 'myWork',
+            icon: <FormOutlined />,
+          },
         {
-          label: '작품 올리기',
-          key: 'myWork',
-          icon: <FormOutlined />,
+          label: '통계',
+          key: 'statics',
+          icon: <AppstoreOutlined />,
         },
     ]
 
@@ -139,7 +202,7 @@ const Content = () => {
         <div style={{ display: "flex", marginTop: 8 }}>
             <Menu onClick={onClickMenu} selectedKeys={[current]} items={items} style={{ width: 245, height: "100vh" }} />
             {
-                current === 'home' 
+                current === 'statics' 
                 ? <div style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center", fontSize: 30 }}>업로드한 작품 수, 조회 수 등을 기록할 예정</div>
                 : current === 'myWork' 
                 ? <MyWork />
@@ -170,7 +233,6 @@ export default function Dashboard(result) {
             <main>
                 <UpperMenu router={router} />
                 <Content />
-                
             </main>
         </>
     );
