@@ -53,7 +53,7 @@ const formats = [
 const placeholder = '본문을 작성해주세요.';
 
 // 중요 2: Quill moudle에 imageResize 디렉터리 등록
-Quill.register("modules/imageResize", ImageResize);
+// Quill.register("modules/imageResize", ImageResize);
 
 const Editor = () => {
     // 리덕스
