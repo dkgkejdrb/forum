@@ -67,9 +67,9 @@ const Editor = () => {
             // }
         },
         // 중요 3: 모듈에 기능 포함
-        imageResize: {
-            modules: [ 'Resize', 'DisplaySize' ]
-        }
+        // imageResize: {
+        //     modules: [ 'Resize', 'DisplaySize' ]
+        // }
     }
 
     const { quill, quillRef } = useQuill({ modules, formats, placeholder });
