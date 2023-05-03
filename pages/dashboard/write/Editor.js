@@ -55,6 +55,7 @@ const placeholder = '본문을 작성해주세요.';
 // Quill.register("modules/imageResize", ImageResize);
 
 const Editor = () => {
+    if(typeof window !== undefined) {
     // 리덕스
     const dispatch = useDispatch();
 
@@ -157,6 +158,7 @@ const Editor = () => {
             <div ref={quillRef}></div>
         </div>
     );
+    }
 }
 
 export default Editor;
