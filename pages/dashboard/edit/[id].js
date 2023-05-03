@@ -7,8 +7,6 @@ import { connectDB } from "@/util/index"
 import axios from 'axios';
 import { useRouter } from "next/router";
 import dayjs from "dayjs";
-import Editor from "./Editor";
-
 
 export async function getServerSideProps() {
     let client = await connectDB;
@@ -140,10 +138,9 @@ const Edit = () => {
             <div className='InputTitle' style={{ marginBottom: 32 }}>
                 <Input placeholder='제목을 입력해주세요.' value={titleState} onChange={(e) => inputTitleHandler(e)} bordered={false} style={{ width: 800, height: 40, fontSize: 19, borderBottom: '1px solid #dfdfdf' }} />
             </div>
-            {/* <DynamicComponent /> */}
             {
-                 typeof window !== "undefined" &
-                 <Editor />
+                typeof window !== "undefined" &&
+                <DynamicComponent />
             }
         </div>
     );

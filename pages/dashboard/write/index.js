@@ -119,7 +119,10 @@ const Write = () => {
             <div className='InputTitle' style={{ marginBottom: 32 }}>
                 <Input placeholder='제목을 입력해주세요.' onChange={(e) => inputTitleHandler(e)} bordered={false} style={{ width: 800, height: 40, fontSize: 19, borderBottom: '1px solid #dfdfdf' }} />
             </div>
-            <DynamicComponent />
+            {
+                typeof window !== "undefined" &&
+                <DynamicComponent />
+            }
         </div>
     );
 }
