@@ -17,6 +17,7 @@ import axios from 'axios';
 // 이미지 ctrl c / ctrl v
 // quillRef 끌어올리기
 let _quillRef = null;
+if (typeof window !== "undefined") {
 window.addEventListener("paste", function(e){
     let item = Array.from(e.clipboardData.items).find(x => /^image\//.test(x.type));
     // 클립보드에 복사된 파일이 image가 아니면, 리턴
@@ -37,6 +38,7 @@ window.addEventListener("paste", function(e){
 
     img.src = URL.createObjectURL(blob);
 });
+}
 
 
 const formats = [
