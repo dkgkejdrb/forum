@@ -31,23 +31,23 @@ const UpperMenu = (props) => {
     const authHandler = () => {
         // 로그아웃 API 호출
         axios.get("/api/post/logOut")
-        .then(res => {
-            let status = res.data.status;
-            // 응답결과가 200이면, 홈으로 이동
-            if (status === 200) {
-            props.router.push("/home");
-            } 
-            else {
-            window.alert(res.data.msg);
-            }
-        }).catch(err => {
-            console.log(err)
-        })
+            .then(res => {
+                let status = res.data.status;
+                // 응답결과가 200이면, 홈으로 이동
+                if (status === 200) {
+                    props.router.push("/home");
+                }
+                else {
+                    window.alert(res.data.msg);
+                }
+            }).catch(err => {
+                console.log(err)
+            })
     }
-        
-    return( 
+
+    return (
         <div style={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>
-            <Button onClick={()=>{authHandler()}} type="primary" style={{ width: 100 }}>로그아웃</Button>
+            <Button onClick={() => { authHandler() }} type="primary" style={{ width: 100 }}>로그아웃</Button>
         </div>
     );
 }
@@ -58,25 +58,25 @@ const Edit = () => {
 
     const [categoryState, setCategoryState] = useState("");
     const [titleState, setTitleState] = useState("");
-    const htmlText = useSelector( state => {
+    const htmlText = useSelector(state => {
         return state
     });
 
     // 첫 로드시, id로 조회환 데이터를 state에 저장하기
-    useEffect(()=> {
+    useEffect(() => {
         // DB의 고유 id를
         axios.post("/api/post/getEditData", {
-                "id": id,
-            }, {
+            "id": id,
+        }, {
             "Content-Type": "application/json"
-            }).then(res => {
-                let data = res.data[0];
-                setTitleState(data.title);
-                setCategoryState(data.category);
+        }).then(res => {
+            let data = res.data[0];
+            setTitleState(data.title);
+            setCategoryState(data.category);
             // 응답결과가 200이면, 대시보드로 이동
-           }).catch(err => {
-                window.alert("Something Wrong!")
-           })
+        }).catch(err => {
+            window.alert("Something Wrong!")
+        })
     }, [])
 
 
@@ -91,35 +91,37 @@ const Edit = () => {
 
     const selectCategoryHandler = (value) => {
         setCategoryState(value);
-      };
+    };
 
     const inputTitleHandler = (e) => {
         setTitleState(e.target.value)
     };
 
     const uploadHandler = (e) => {
-        if(titleState === "") {
+        if (titleState === "") {
             window.alert("제목을 입력해주세요.");
             return;
-        } else if(htmlText.test === "") {
+        } else if (htmlText.test === "") {
             window.alert("본문을 입력해주세요.");
             return;
-        } 
+        }
 
-        axios.post("/api/post/edit", data, {"Content-Type": "application/json"})
-        .then(res => {
-            let status = res.data.status;
-            // 응답결과가 200이면, 대시보드로 이동
-            if (status === 200) {
-              router.push("/dashboard");
-            } 
-            // 응답결과가 401이면, 서버의 msg값을 경고로 출력
-            else {
-              window.alert(res.data.msg);
-            }
-          }).catch(err => {
-            console.log(err)
-          })
+        window.alert("수정되었습니다.");
+        axios.post("/api/post/edit", data, { "Content-Type": "application/json" })
+            .then(res => {
+                let status = res.data.status;
+                // 응답결과가 200이면, 대시보드로 이동
+                if (status === 200) {
+
+                    router.push("/dashboard");
+                }
+                // 응답결과가 401이면, 서버의 msg값을 경고로 출력
+                else {
+                    window.alert(res.data.msg);
+                }
+            }).catch(err => {
+                console.log(err)
+            })
 
     };
 
@@ -128,12 +130,12 @@ const Edit = () => {
             <UpperMenu router={router} />
             <div className='UploadButton' style={{ width: 800, display: "flex", alignItems: "center" }}>
                 <div style={{ fontWeight: 700, fontSize: 19, textDecoration: "underline" }}>수정하기</div>
-                <Button style={{ marginLeft: 630 }}  onClick={uploadHandler} shape="round" type="primary" icon={<UploadOutlined />}>수정</Button>
+                <Button style={{ marginLeft: 630 }} onClick={uploadHandler} shape="round" type="primary" icon={<UploadOutlined />}>수정</Button>
             </div>
             <div className='SelectCategory' style={{ width: 800, marginTop: 30 }}>
                 <Select defaultValue="디자인" value={categoryState} style={{ marginBottom: 16, width: 120 }} onChange={selectCategoryHandler} bordered={false}
-                    options={[{value: '일러스트',label: '일러스트'},{value: '사진',label: '사진'},{value: '회화',label: '회화',},{value: '디자인',label: '디자인'},
-                    {value: '캘리그라피',label: '캘리그라피'},{value: '애니메이션',label: '애니메이션'},{value: '기타',label: '기타'}]}/>
+                    options={[{ value: '일러스트', label: '일러스트' }, { value: '사진', label: '사진' }, { value: '회화', label: '회화', }, { value: '디자인', label: '디자인' },
+                    { value: '캘리그라피', label: '캘리그라피' }, { value: '애니메이션', label: '애니메이션' }, { value: '기타', label: '기타' }]} />
             </div>
             <div className='InputTitle' style={{ marginBottom: 32 }}>
                 <Input placeholder='제목을 입력해주세요.' value={titleState} onChange={(e) => inputTitleHandler(e)} bordered={false} style={{ width: 800, height: 40, fontSize: 19, borderBottom: '1px solid #dfdfdf' }} />
