@@ -3,7 +3,7 @@
 
 
 // 중요: 컴포넌트의 클래스네임(ql-insertHeart)과 핸들러의 key이름(inserHeart)와 일치해야함
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 // import ImageResize from 'quill-image-resize-module-react';
 // 중요 1: Quill moudle에 외부 모듈을 등록하기 위해 Quill 임포트
 // import Quill from 'quill';
@@ -13,31 +13,38 @@ import 'quill/dist/quill.snow.css';
 import { useDispatch } from "react-redux";
 import { testAction } from "@/lib/store/modules/test";
 import axios from 'axios';
+import { Spin } from 'antd';
+
+// 새로 고침 변수
+const preventClose = (e) => {
+    e.preventDefault();
+    e.returnValue = ""; // chrome에서는 설정이 필요해서 넣은 코드
+}
 
 // 이미지 ctrl c / ctrl v
 // quillRef 끌어올리기
 let _quillRef = null;
 if (typeof window !== "undefined") {
-window.addEventListener("paste", function(e){
-    let item = Array.from(e.clipboardData.items).find(x => /^image\//.test(x.type));
-    // 클립보드에 복사된 파일이 image가 아니면, 리턴
-    if (!item) {
-        return;
-    }
-
-    let blob = item.getAsFile();
-
-    let img = new Image();
-
-    img.onload = function(){
-        if(_quillRef) {
-            // _quillRef.current.firstChild > 에디터창 타겟으로 출력
-            _quillRef.current.firstChild.appendChild(this);
+    window.addEventListener("paste", function(e){
+        let item = Array.from(e.clipboardData.items).find(x => /^image\//.test(x.type));
+        // 클립보드에 복사된 파일이 image가 아니면, 리턴
+        if (!item) {
+            return;
         }
-    };
 
-    img.src = URL.createObjectURL(blob);
-});
+        let blob = item.getAsFile();
+
+        let img = new Image();
+
+        img.onload = function(){
+            if(_quillRef) {
+                // _quillRef.current.firstChild > 에디터창 타겟으로 출력
+                _quillRef.current.firstChild.appendChild(this);
+            }
+        };
+
+        img.src = URL.createObjectURL(blob);
+    });
 }
 
 
@@ -59,6 +66,20 @@ const placeholder = '본문을 작성해주세요.';
 const Editor = () => {
     // 리덕스
     const dispatch = useDispatch();
+
+    // 새로고침 방지 훅
+    useEffect(() => {
+        (() => {
+            window.addEventListener("beforeunload", preventClose);    
+        })();
+
+        return () => {
+            window.removeEventListener("beforeunload", preventClose);
+        };
+    },[]);
+
+    // 이미지 로딩
+    const [imgLoading, setImgLoading] = useState(false);
 
     const modules = {
         toolbar: {
@@ -83,15 +104,22 @@ const Editor = () => {
         const body = new FormData();
         body.append('file', file);
         const config = {
-            headers: { 'content-type': 'multipart/form-data' },
+            headers: { 
+                'content-type': 'multipart/form-data' 
+            },
           };
 
-        const response = await axios.post('/api/imgupload', body, config);
-        // ★중요: next.js 에서는 public 경로를 제외하고 적어주면 정상적으로 이미지가 출력됨
-        const url = "/uploads/" + response?.data[0].filename
-        insertToEditor(url)
-    };
+        // image 업로드용 api
+        const response = await axios.post("/api/post/imageAzure", body, config);
 
+        const url = response?.data.url;
+        setImgLoading(true);
+        setTimeout(()=> {
+            insertToEditor(url);
+            setImgLoading(false);
+        }, 3000)
+    };
+    
     // Open Dialog to select Image File
     const selectLocalImage = () => {
         const input = document.createElement('input');
@@ -156,6 +184,13 @@ const Editor = () => {
                 <button className="ql-script" value="sub" />
                 <button className="ql-script" value="super" />
             </div>
+            {
+                imgLoading?
+                    <div style={{ position: "fixed", width: 800, height: 400, display: "flex", justifyContent: "center", alignItems: "center", zIndex: 5 }}>
+                        <Spin tip="Loading..."></Spin>
+                    </div>
+                : <></>
+            }
             <div ref={quillRef}></div>
         </div>
     );

@@ -128,10 +128,6 @@ const MyWork = () => {
 
     const [workList, setWorkList] = useState([]);
 
-    useEffect(() => {
-
-    }, [workList])
-
     const myWorkList = () => {
         // 나의 작품 리스트 가져오기
         axios.get("/api/post/workList")
@@ -208,11 +204,9 @@ const Content = () => {
                 ? <MyWork />
                 : <></>
             }
-            
         </div>
     );
 }
-
 
 export default function Dashboard(result) {
     const router = useRouter();

@@ -14,6 +14,13 @@ import { useDispatch } from "react-redux";
 import { testAction } from "@/lib/store/modules/test";
 import axios from 'axios';
 import { useRouter } from "next/router";
+import { Spin } from 'antd';
+
+// 새로 고침 변수
+const preventClose = (e) => {
+    e.preventDefault();
+    e.returnValue = ""; // chrome에서는 설정이 필요해서 넣은 코드
+}
 
 // 이미지 ctrl c / ctrl v
 // quillRef 끌어올리기
@@ -61,6 +68,20 @@ const Editor = () => {
     // 리덕스
     const dispatch = useDispatch();
 
+    // 새로고침 방지 훅
+    useEffect(() => {
+        (() => {
+            window.addEventListener("beforeunload", preventClose);    
+        })();
+
+        return () => {
+            window.removeEventListener("beforeunload", preventClose);
+        };
+    },[]);
+
+    // 이미지 로딩
+    const [imgLoading, setImgLoading] = useState(false);
+
     const modules = {
         toolbar: {
             container: '#toolbar1',
@@ -90,10 +111,16 @@ const Editor = () => {
             headers: { 'content-type': 'multipart/form-data' },
           };
 
-        const response = await axios.post('/api/imgupload', body, config);
+        // image 업로드용 api
+        const response = await axios.post("/api/post/imageAzure", body, config);
+
         // ★중요: next.js 에서는 public 경로를 제외하고 적어주면 정상적으로 이미지가 출력됨
-        const url = "/uploads/" + response?.data[0].filename
-        insertToEditor(url)
+        const url = response?.data.url;
+        setImgLoading(true);
+        setTimeout(()=> {
+            insertToEditor(url);
+            setImgLoading(false);
+        }, 3000)
     };
 
     // Open Dialog to select Image File
@@ -178,6 +205,13 @@ const Editor = () => {
                 <button className="ql-script" value="sub" />
                 <button className="ql-script" value="super" />
             </div>
+            {
+                imgLoading?
+                    <div style={{ position: "fixed", width: 800, height: 400, display: "flex", justifyContent: "center", alignItems: "center", zIndex: 5 }}>
+                        <Spin tip="Loading..."></Spin>
+                    </div>
+                : <></>
+            }
             <div ref={quillRef}></div>
         </div>
     );
