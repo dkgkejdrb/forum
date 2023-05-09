@@ -21,10 +21,14 @@ apiRoute.post((req, res) => {
   
   // Any logic with your data here
   try {
+    const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
+
+    if (!accountName) throw Error('Azure Storage accountName not found');
+
     console.log("Azure Blob storage v12 - JavaScript quickstart sample");
 
     const blobServiceClient = new BlobServiceClient(
-      `https://forumadmin.blob.core.windows.net`,
+      `https://${accountName}.blob.core.windows.net`,
       new DefaultAzureCredential()
     );
 
@@ -59,6 +63,7 @@ apiRoute.post((req, res) => {
     res.send({ url: blockBlobClient.url })
 
   } catch (error) {
+    console.log(error)
     res.send({ url: "" })
   }
 });
