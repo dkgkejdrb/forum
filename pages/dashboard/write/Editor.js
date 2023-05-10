@@ -117,7 +117,7 @@ const Editor = () => {
         setTimeout(()=> {
             insertToEditor(url);
             setImgLoading(false);
-        }, 3000)
+        }, 6000)
     };
     
     // Open Dialog to select Image File
