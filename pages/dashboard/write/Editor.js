@@ -13,7 +13,7 @@ import 'quill/dist/quill.snow.css';
 import { useDispatch } from "react-redux";
 import { testAction } from "@/lib/store/modules/test";
 import axios from 'axios';
-import { Spin } from 'antd';
+import { Spin, Progress } from 'antd';
 
 // 새로 고침 변수
 const preventClose = (e) => {
@@ -81,6 +81,9 @@ const Editor = () => {
     // 이미지 로딩
     const [imgLoading, setImgLoading] = useState(false);
 
+    // 업로드 프로그레스바 상태값
+    const [uploadPercentage, setUploadPercentage] = useState(0);
+
     const modules = {
         toolbar: {
             container: '#toolbar1',
@@ -100,24 +103,46 @@ const Editor = () => {
     };
 
     // Upload Image to Image Server such as AWS S3, Cloudinary, Cloud Storage, etc..
-    const saveToServer = async (file) => {
+    // const saveToServer = async (file) => {
+    const saveToServer = (file) => {
         const body = new FormData();
         body.append('file', file);
-        const config = {
+
+        // 이미지 업로딩 프로그레스바 옵션(수정1)
+        const options = {
+            onUploadProgress: (progressEvent) => {
+                setImgLoading(true);
+                const {loaded, total} = progressEvent;
+                let percent = Math.floor( (loaded * 100) / total );
+                console.log( `${loaded}kb of ${total}kb | ${percent}%`);
+
+                if ( percent < 100 ) {
+                    setUploadPercentage(percent);
+                }
+            },
             headers: { 
                 'content-type': 'multipart/form-data' 
             },
-          };
+        }
 
         // image 업로드용 api
-        const response = await axios.post("/api/post/imageAzure", body, config);
+        axios.post("/api/post/imageAzure", body, options)
+        .then((response) => {
+            setUploadPercentage(100);
+            setTimeout(()=> {
+                setUploadPercentage(0);
+            }, 1000);
 
-        const url = response?.data.url;
-        setImgLoading(true);
-        setTimeout(()=> {
-            insertToEditor(url);
-            setImgLoading(false);
-        }, 6000)
+            const url = response?.data.url;
+
+            setTimeout(()=> {
+                insertToEditor(url);
+                setImgLoading(false);
+            }, 3000);
+        })
+        .catch((err) => {
+            console.log(err)
+        })
     };
     
     // Open Dialog to select Image File
@@ -186,10 +211,17 @@ const Editor = () => {
             </div>
             {
                 imgLoading?
-                    <div style={{ position: "fixed", width: 800, height: 400, display: "flex", justifyContent: "center", alignItems: "center", zIndex: 5 }}>
+                    <div style={{  position: "fixed", width: 800, height: 400, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", zIndex: 5 }}>
                         <Spin tip="Loading..."></Spin>
+                        {
+                            uploadPercentage > 0 &&
+                            <>
+                                <Progress percent={uploadPercentage} status='active' style={{ width: 300 }}></Progress>
+                            </>                                
+                        }
                     </div>
-                : <></>
+                :
+                    <></>
             }
             <div ref={quillRef}></div>
         </div>
