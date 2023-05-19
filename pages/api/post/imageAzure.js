@@ -28,7 +28,7 @@ apiRoute.post((req, res) => {
     console.log("Azure Blob storage v12 - JavaScript quickstart sample");
 
     const blobServiceClient = new BlobServiceClient(
-      `https://${accountName}.blob.core.windows.net/images?sp=racwdli&st=2023-05-19T06:49:16Z&se=2023-05-19T14:49:16Z&spr=https&sv=2022-11-02&sr=c&sig=NL6wRQ7R14AEyZpPYVAomRh%2FeavoWyhT6lp2DPnHSys%3D`,
+      `https://${accountName}.blob.core.windows.net`,
       new DefaultAzureCredential()
     );
 
