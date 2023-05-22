@@ -18,6 +18,7 @@ apiRoute.use(multer().any());
 
 apiRoute.post((req, res) => {
   const file = req.files[0];
+  res.send(`${file}이 전송되었습니다.`)
   
   // Any logic with your data here
   try {
