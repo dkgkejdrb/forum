@@ -52,8 +52,19 @@ const UpperMenu = (props) => {
     );
 }
 
-const Edit = () => {
+const Edit = (result) => {
     const router = useRouter();
+    const _session = result.result[0].session;
+
+    useEffect(() => {
+        // /dashboard 첫 진입시 관리자 로그인 유무 체크
+        // 만약 로그인되어있지 않으면 로그인 페이지로 이동
+        if(_session === "false") {
+            window.alert("세션이 만료되어 홈으로 이동합니다.")
+            router.push("/home")
+        }
+    }, [])
+
     const { id } = router.query;
 
     const [categoryState, setCategoryState] = useState("");

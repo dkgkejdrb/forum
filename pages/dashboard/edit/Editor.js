@@ -212,7 +212,7 @@ const Editor = () => {
                     </div>
                 : <></>
             }
-            <div ref={quillRef}></div>
+            <div style={{ minHeight: 400 }}  ref={quillRef}></div>
         </div>
     );
 }

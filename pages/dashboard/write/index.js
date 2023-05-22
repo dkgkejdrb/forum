@@ -7,6 +7,7 @@ import { connectDB } from "@/util/index"
 import axios from 'axios';
 import { useRouter } from "next/router";
 import dayjs from "dayjs";
+import { useEffect } from 'react';
 
 
 export async function getServerSideProps() {
@@ -53,8 +54,19 @@ const UpperMenu = (props) => {
     );
 }
 
-const Write = () => {
+const Write = (result) => {
     const router = useRouter();
+
+    const _session = result.result[0].session;
+
+    useEffect(() => {
+        // /dashboard 첫 진입시 관리자 로그인 유무 체크
+        // 만약 로그인되어있지 않으면 로그인 페이지로 이동
+        if(_session === "false") {
+            window.alert("세션이 만료되어 홈으로 이동합니다.")
+            router.push("/home")
+        }
+    }, [])
 
     const [categoryState, setCategoryState] = useState("디자인");
     const [titleState, setTitleState] = useState("");
