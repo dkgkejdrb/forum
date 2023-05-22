@@ -18,20 +18,29 @@ apiRoute.use(multer().any());
 
 apiRoute.post((req, res) => {
   const file = req.files[0];
-  res.send(`${file}이 전송되었습니다.`)
   
   // Any logic with your data here
   try {
+    // 스토리지 연결문자열, 환경변수 사용
+    const AZURE_STORAGE_CONNECTION_STRING = 
+  process.env.AZURE_STORAGE_CONNECTION_STRING;
+
+if (!AZURE_STORAGE_CONNECTION_STRING) {
+  throw Error('Azure Storage Connection string not found');
+}
+
+// Create the BlobServiceClient object with connection string
+const blobServiceClient = BlobServiceClient.fromConnectionString(
+  AZURE_STORAGE_CONNECTION_STRING
+);
+
+
     const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
 
     if (!accountName) throw Error('Azure Storage accountName not found');
 
     console.log("Azure Blob storage v12 - JavaScript quickstart sample");
 
-    const blobServiceClient = new BlobServiceClient(
-      `https://${accountName}.blob.core.windows.net`,
-      new DefaultAzureCredential()
-    );
 
     // Create a unique name for the container
     const containerName = 'images'
