@@ -1,13 +1,12 @@
 import dynamic from 'next/dynamic'
-import { Button, Input, Select } from 'antd'
+import { UploadOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Input, Select, Upload } from 'antd'
 import { useSelector } from 'react-redux'
-import { useState } from 'react';
-import { UploadOutlined } from '@ant-design/icons';
+import { useState, useEffect } from 'react';
 import { connectDB } from "@/util/index"
 import axios from 'axios';
 import { useRouter } from "next/router";
 import dayjs from "dayjs";
-import { useEffect } from 'react';
 
 
 export async function getServerSideProps() {
@@ -20,6 +19,7 @@ export async function getServerSideProps() {
         }
     }
 }
+
 
 // 동적으로 서버사이드 렌더링
 // dashboard > write > Editor 컴포넌트
@@ -56,7 +56,6 @@ const UpperMenu = (props) => {
 
 const Write = (result) => {
     const router = useRouter();
-
     const _session = result.result[0].session;
 
     useEffect(() => {
@@ -74,11 +73,52 @@ const Write = (result) => {
         return state
     });
 
+    const [thumbnailState, setThumbnailState] = useState("");
+    const [thumbnailTitleState, setThumbnailTitleState] = useState("");
+    const props = {
+        maxCount: 1,
+        listType: "picture",
+        onChange(info) {
+            const body = new FormData();
+            body.append('file', info.file.originFileObj);
+
+            // 파일 이름 업로드
+            setThumbnailTitleState(info.file.originFileObj.name);
+    
+            const options = {
+                headers: { 
+                    'content-type': 'multipart/form-data' 
+                },
+            }
+    
+            // image 업로드용 api
+            axios.post("/api/post/imageAzure", body, options)
+            .then((res)=> {
+                const url = res.data.url;
+                setThumbnailState(url);
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+    
+          if (info.file.status !== 'uploading') {
+            console.log(info.file, info.fileList);
+          }
+          if (info.file.status === 'done') {
+            console.log(`${info.file.name} file uploaded successfully`);
+          } else if (info.file.status === 'error') {
+            console.error(`${info.file.name} file upload failed.`);
+          }
+        },
+    }
+
     const data = {
         "category": categoryState,
         "title": titleState,
         "htmlText": htmlText?.test,
-        "date": dayjs(Date.now()).format("YYYY/MM/DD")
+        "date": dayjs(Date.now()).format("YYYY/MM/DD"),
+        "thumbnail": thumbnailState,
+        "thumbnailTitle": thumbnailTitleState
     }
 
     const selectCategoryHandler = (value) => {
@@ -96,7 +136,10 @@ const Write = (result) => {
         } else if(htmlText.test === "") {
             window.alert("본문을 입력해주세요.");
             return;
-        } 
+        } else if(thumbnailState === "") {
+            window.alert("썸네일을 입력해주세요.");
+            return;
+        }
 
         axios.post("/api/post/image", data, {"Content-Type": "application/json"})
         .then(res => {
@@ -128,8 +171,15 @@ const Write = (result) => {
                     options={[{value: '일러스트',label: '일러스트'},{value: '사진',label: '사진'},{value: '회화',label: '회화',},{value: '디자인',label: '디자인'},
                     {value: '캘리그라피',label: '캘리그라피'},{value: '애니메이션',label: '애니메이션'},{value: '기타',label: '기타'}]}/>
             </div>
-            <div className='InputTitle' style={{ marginBottom: 32 }}>
+            <div className='InputTitle' style={{ marginBottom: 20 }}>
                 <Input placeholder='제목을 입력해주세요.' onChange={(e) => inputTitleHandler(e)} bordered={false} style={{ width: 800, height: 40, fontSize: 19, borderBottom: '1px solid #dfdfdf' }} />
+            </div>
+            <div style={{ width: 800, display: "flex", marginBottom: 32 }}>
+                <div style={{ width: 200 }}>
+                <Upload {...props}>
+                    <Button icon={<PlusOutlined />} style={{ height:40 }}>썸네일</Button>
+                </Upload>
+                </div>
             </div>
             {
                 typeof window !== "undefined" &&

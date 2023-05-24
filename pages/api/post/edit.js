@@ -17,7 +17,9 @@ export default async function handler(req, res) {
                 category: req.body.category,
                 title: req.body.title,
                 htmlText: req.body.htmlText,
-                date: req.body.date
+                date: req.body.date,
+                thumbnail: req.body.thumbnail,
+                thumbnailTitle: req.body.thumbnailTitle,
             }
         })
 

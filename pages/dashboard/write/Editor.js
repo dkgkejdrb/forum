@@ -107,6 +107,7 @@ const Editor = () => {
     const saveToServer = (file) => {
         const body = new FormData();
         body.append('file', file);
+        console.log(file);
 
         // 이미지 업로딩 프로그레스바 옵션(수정1)
         const options = {
