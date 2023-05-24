@@ -1,3 +1,7 @@
 .ant-upload-wrapper .ant-upload-list .ant-upload-list-item .ant-upload-list-item-actions.picture .ant-upload-list-item-action {
     display: none;
 }
+
+.ant-upload-wrapper .ant-upload-list.ant-upload-list-picture .ant-upload-list-item-error {
+    border-color: 1px solid #d9d9d9;
+}
